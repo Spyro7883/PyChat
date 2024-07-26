@@ -7,6 +7,7 @@ def handle_client(client_socket, addr):
     global clients
     try:
         clients.append(client_socket)
+        broadcast(f"{addr} has joined the chat.", client_socket)
         while True:
             request = client_socket.recv(1024).decode("utf-8")
             if not request or request.lower() == "close":
@@ -19,6 +20,7 @@ def handle_client(client_socket, addr):
         client_socket.close()
         clients.remove(client_socket)
         print(f"Connection to client ({addr[0]}:{addr[1]}) closed")
+        broadcast(f"{addr} has left the chat.", client_socket)
 
 def broadcast(message, sender_socket):
     for client in clients:
@@ -49,4 +51,5 @@ def run_server():
     finally:
         server.close()
 
-run_server()
+if __name__ == '__main__':
+    run_server()

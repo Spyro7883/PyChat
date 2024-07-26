@@ -20,5 +20,35 @@
   <body>
     <h1>Welcome to the Main Page!</h1>
     <p>This is the main page of your Flask application.</p>
+    <div id="chat">
+      <ul id="messages"></ul>
+    </div>
+    <input id="message" autocomplete="off" /><button onclick="sendMessage()">
+      Send
+    </button>
+
+    <script>
+      function notifyServer() {
+        fetch("/notify", { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => console.log(data.message))
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function sendMessage() {
+        const input = document.getElementById("message");
+        const msg = input.value;
+        fetch("/send_message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: msg }),
+        });
+        input.value = "";
+      }
+
+      window.onload = notifyServer;
+    </script>
   </body>
 </html>
