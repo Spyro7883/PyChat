@@ -28,6 +28,12 @@
     </button>
 
     <script>
+      function addMessage(message) {
+        const item = document.createElement("li");
+        item.textContent = message;
+        document.getElementById("messages").appendChild(item);
+      }
+
       function notifyServer() {
         fetch("/notify", { method: "POST" })
           .then((response) => response.json())
@@ -47,8 +53,19 @@
         });
         input.value = "";
       }
+      function pollMessages() {
+        fetch("/get_messages")
+          .then((response) => response.json())
+          .then((data) => {
+            data.messages.forEach(addMessage);
+          });
+      }
 
-      window.onload = notifyServer;
+      window.onload = function () {
+        notifyServer();
+        pollMessages();
+        setInterval(pollMessages, 3000); // Poll messages every second
+      };
     </script>
   </body>
 </html>
