@@ -1,4 +1,5 @@
 import socket
+import ssl
 import threading
 
 def receive_messages(client_socket):
@@ -16,6 +17,7 @@ def receive_messages(client_socket):
 
 def run_client():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server = ssl.wrap_socket(client, keyfile='key.pem', certfile='cert.pem')
     server_ip = "127.0.0.1"
     server_port = 8000
 

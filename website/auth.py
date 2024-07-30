@@ -1,23 +1,31 @@
 from flask import Blueprint, request, jsonify
 import socket
 import threading
+from nacl.public import PrivateKey, PublicKey, Box
+from nacl.encoding import Base64Encoder
 
 auth = Blueprint('auth', __name__)
 
+clients = {}
 messages = []
 
 tcp_client = None
 
 @auth.route('/notify', methods=['POST'])
 def notify():
-    print("A user has connected to the web page")
-    return jsonify({ 'message': 'User connection logged' })
+    data = request.get_json()
+    username = data['username']
+    public_key = data['public_key']
+    clients[username] = PublicKey(public_key.encode('utf-8'), encoder=Base64Encoder)
+    print(f"{username} has connected with public key {public_key}")
+    return jsonify({'message': 'User connection logged'})
 
 @auth.route('/send_message', methods=['POST'])
 def send_message():
-    global messages
+    global messages, tcp_client
     data = request.get_json()
     message = data.get('message')
+    recipient = data.get('recipient')
     messages.append(message)
     if tcp_client:
         try:
@@ -28,7 +36,9 @@ def send_message():
 
 @auth.route('/get_messages', methods=['GET'])
 def get_messages():
-    return jsonify({'messages': messages})
+    last_index = int(request.args.get('last_index', -1))
+    new_messages = messages[last_index + 1:]
+    return jsonify({'messages': new_messages, 'last_index': len(messages) - 1})
 
 def receive_messages(client_socket):
     global messages

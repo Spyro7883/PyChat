@@ -1,4 +1,5 @@
 import socket
+import ssl
 import threading
 
 clients = []
@@ -36,6 +37,7 @@ def run_server():
 
     try:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server = ssl.wrap_socket(server, keyfile='key.pem', certfile='cert.pem', server_side=True)
         server.bind((server_ip, port))
         server.listen()
         print(f"Listening on {server_ip}:{port}")

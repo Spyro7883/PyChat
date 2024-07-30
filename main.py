@@ -14,4 +14,5 @@ tcp_client_thread = threading.Thread(target=run_client, daemon=True)
 tcp_client_thread.start()
 
 if __name__ == '__main__':
+    context = ('cert.pem', 'key.pem')
     app.run(debug=True)
